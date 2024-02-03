@@ -24,6 +24,9 @@ async def pwd_manage(message: Message):
 @router.message(F.text == '📋Список сервисов📋')  # Обрабатывает кнопку 🔧Управление сервисами🔧
 async def pwd_manage(message: Message):
     data = await db.get_value('id', message.from_user.id)
+    if data[4] == '':
+        await message.answer('Нет доступных сервисов\nДобавте их, используя\nкнопку ✅Добавить сер.✅')
+        return 1
     services = data[4].split('/')
     text = []
     for i in services:
@@ -31,19 +34,21 @@ async def pwd_manage(message: Message):
         time = data_in_serv[2].split('-')
         k = str(date(int(time[0]), int(time[1]), int(time[2])) - date.today())
         if k == '0:00:00':
-            text.append(f"{data_in_serv[0]}: 60 дней")
+            text.append(f"{data_in_serv[0]}: {data[3]} дней до смены")
         else:
-            k = int(k.replace(' days, 0:00:00', ''))
-            text.append(f"{data_in_serv[0]}: {60+k} дней")
-    print(text)
-    await message.answer('\n'.join(text), reply_markup=keyboards.pwd_menage_keyboard())
+            k = int(k.split(' ')[0])
+            if data[3]+k > 0:
+                text.append(f"{data_in_serv[0]}: {data[3]+k} дней до смены")
+            else:
+                text.append(f"{data_in_serv[0]}: пора менять")
+    await message.answer("Информация по сервисам:\n" + '\n'.join(text), reply_markup=keyboards.pwd_menage_keyboard())
 
 
 @router.message(F.text == '👤Аккаунт👤')  # Обрабатывает кнопку 👤Аккаунт👤
 async def account(message: Message):
     if await db.user_in_base(message.from_user.id):
         data = await db.get_value('id', message.from_user.id)
-        await message.answer(f'Имя: {data[1]}\nСервисов: {len(data[4].split("/"))}',
+        await message.answer(f'Имя: {data[1]}\nСервисов: {len(data[4].split("/"))}\nПериод: {data[3]} д.',
                              reply_markup=keyboards.account_keyboard())
     else:
         await message.answer(MESSAGES['user_not_in_base'], reply_markup=keyboards.start_keyboard())

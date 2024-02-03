@@ -22,21 +22,13 @@ class DataBase:
             except sqlite3.Error as e:
                 print(e)
 
-    async def update_secret_code(self, user_id, value):
+    async def update_peroid(self, user_id, value):
         with self.connect:
             try:
-                sql_update_query = f"""Update Users set secret_code = '{str(value)}' where id = {user_id}"""
+                sql_update_query = f"""Update Users set period = '{int(value)}' where id = {user_id}"""
                 return self.cursor.execute(sql_update_query)
             except sqlite3.Error as e:
                 print(e)
-
-    async def update_table_name(self, name, selection, value):
-        try:
-            with self.connect:
-                sql_update_query = f"""Update Users set {selection} = '{value}' where name = '{name}'"""
-                return self.cursor.execute(sql_update_query)
-        except sqlite3.Error as error:
-            print("Ошибка при работе с SQLite", error)
 
     async def get_value(self, selection, value):
         try:
@@ -67,7 +59,7 @@ class DataBase:
     async def add_user(self, user):
         with self.connect:
             return self.cursor.execute(
-                f'INSERT INTO Users (id, name, password, secret_code, passwords) values{tuple(user)}')
+                f'INSERT INTO Users (id, name, password, period, passwords) values{tuple(user)}')
 
     async def delete(self, selection, value):
         with self.connect:

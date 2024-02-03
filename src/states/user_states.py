@@ -19,3 +19,6 @@ class EditServiceStates(StatesGroup):
 class EditName(StatesGroup):
     name = State()
 
+
+class EditPeriod(StatesGroup):
+    new_period = State()

@@ -32,7 +32,7 @@ def pwd_menage_keyboard():  # Клавиатура меню управления
 def account_keyboard():
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
-        text="🔧Изменить🔧",
+        text="🔧Настроить🔧",
         callback_data="edit_profile")
     )
 
@@ -47,8 +47,8 @@ def account_keyboard():
 def edit_account_keyboard():
     buttons = [
         [types.InlineKeyboardButton(text="Изменитиь имя", callback_data='edit_name')],
-        # [types.InlineKeyboardButton(text="Изменить код. слово", callback_data='edit_code_word')],
-        # [types.InlineKeyboardButton(text="Изменить пароль", callback_data='edit_passwd')],
+        [types.InlineKeyboardButton(text="Изменить период смены пароля", callback_data='edit_period')],
+        [types.InlineKeyboardButton(text="Изменить пароль", callback_data='edit_passwd')],
         [types.InlineKeyboardButton(text="Удалить аккаунт", callback_data='del_account')],
         [types.InlineKeyboardButton(text="❌Закрыть❌", callback_data='close_profile_menu')]
     ]
@@ -132,6 +132,21 @@ def services_keyboard(services):
 
     builder.add(types.InlineKeyboardButton(
         text="❌Отменить❌",
+        callback_data="cancel")
+    )
+    builder.adjust(1)
+
+    return builder.as_markup()
+
+
+def apsched_keyboad():
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="✅Сменить✅",
+        callback_data="edit_service_password")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="❌Закрыть❌",
         callback_data="cancel")
     )
     builder.adjust(1)

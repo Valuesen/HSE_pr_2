@@ -8,10 +8,11 @@ from aiogram.enums import ParseMode
 from src.services.sql import DataBase
 from src.config import database_path
 from src.keyboards import keyboards
-from src.states.user_states import EditServiceStates, EditName
+from src.states.user_states import EditServiceStates, EditName, EditPeriod
 
 from datetime import date
 
+from Texts.texts import MESSAGES
 db = DataBase(database_path)
 router = Router()
 
@@ -68,6 +69,19 @@ async def delete_service(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer('Меню управления сервисами:', reply_markup=keyboards.pwd_menage_keyboard())
 
 
+@router.callback_query(F.data == 'edit_service_password')
+async def del_service(callback: CallbackQuery,):
+    if await db.user_in_base(callback.from_user.id):
+        data = callback.message.text.split('\n')[2:]
+        print(data)
+        s = []
+        for i in data:
+            s.append(i)
+        await callback.message.edit_text('Выберите сервис:', reply_markup=keyboards.services_edit_keyboard(s))
+    else:
+        await callback.answer(MESSAGES['user_not_in_base'], reply_markup=keyboards.start_keyboard())
+
+
 @router.callback_query(F.data == 'edit_service')  # Роутер на изменение пароля
 async def edit_service(callback: CallbackQuery, state: FSMContext):
     data_db = await db.get_value('id', callback.from_user.id)
@@ -76,15 +90,22 @@ async def edit_service(callback: CallbackQuery, state: FSMContext):
     service = data_tg['service_name']
     for i in data_db:
         if service == i.split(':')[0]:
+            data = f'{service}:{data_tg["service_password"]}:{date.today()}]'
             data_db.remove(i)
-            data_db.append(service + ':' + data_tg["service_password"])
-            print(data_db)
-            print("/".join(data_db))
+            data_db.append(data)
             await db.update_passwords(callback.from_user.id, "/".join(data_db))
             break
     await callback.message.edit_text('Пароль обновлен!', reply_markup=None)
     await callback.message.answer('Меню управления сервисами:', reply_markup=keyboards.pwd_menage_keyboard())
     await state.clear()
+
+
+@router.callback_query(F.data == 'edit_period')  # Роутер на изменение пароля
+async def edit_name(callback: CallbackQuery, state: FSMContext):
+    last_period = await db.get_value('id', callback.from_user.id)
+    await callback.message.edit_text(f'Прошлый период {last_period[3]} д.\n'
+                                     f'Напишите новый период(в днях):')
+    await state.set_state(EditPeriod.new_period)
 
 
 @router.callback_query(F.data == 'edit_name')  # Роутер на изменение пароля
