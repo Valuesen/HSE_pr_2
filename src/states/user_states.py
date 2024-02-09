@@ -22,3 +22,28 @@ class EditName(StatesGroup):
 
 class EditPeriod(StatesGroup):
     new_period = State()
+
+
+class GetPassword(StatesGroup):
+    password = State()
+
+
+class DeleteService(StatesGroup):
+    password = State()
+
+
+class EditPassword(StatesGroup):
+    password = State()
+
+
+class DeleteAccount(StatesGroup):
+    password = State()
+
+
+class EditAccountPassword(StatesGroup):
+    password = State()
+    new_password = State()
+
+
+class EditAccountPasswordReq(StatesGroup):
+    password = State()

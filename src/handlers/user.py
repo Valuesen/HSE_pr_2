@@ -10,7 +10,7 @@ from Texts.texts import MESSAGES
 from src.keyboards import keyboards
 from src.services.sql import DataBase
 from src.config import database_path
-from src.states.user_states import AddServiceStates
+from src.states.user_states import AddServiceStates, GetPassword, EditPassword, DeleteService
 
 db = DataBase(database_path)
 router = Router()
@@ -47,8 +47,11 @@ async def pwd_manage(message: Message):
 @router.message(F.text == '👤Аккаунт👤')  # Обрабатывает кнопку 👤Аккаунт👤
 async def account(message: Message):
     if await db.user_in_base(message.from_user.id):
-        data = await db.get_value('id', message.from_user.id)
-        await message.answer(f'Имя: {data[1]}\nСервисов: {len(data[4].split("/"))}\nПериод: {data[3]} д.',
+        user = await db.get_value('id', message.from_user.id)
+        x = user[4].split("/")
+        await message.answer(f'Имя: {user[1]}\nСервисов добавлено: {0 if x == [""] else len(x)}\nПериод: {user[3]} д.\n'
+                             f'Уведомления: {"Включены🟢" if user[5] == 1 else "Выключены🔴"}\n'
+                             f'Запрос пароля: {"Включен🟢" if user[6] == 1 else "Выключен🔴"}',
                              reply_markup=keyboards.account_keyboard())
     else:
         await message.answer(MESSAGES['user_not_in_base'], reply_markup=keyboards.start_keyboard())
@@ -66,42 +69,59 @@ async def add_service(message: Message, state: FSMContext):
 
 
 @router.message(F.text == '❌Удалить сер.❌')  # Обрабатывает кнопку ❌Удалить сер.❌
-async def del_service(message: Message):
+async def del_service(message: Message, state: FSMContext):
     if await db.user_in_base(message.from_user.id):
-        data = await db.get_value('id', message.from_user.id)
-        data = data[4].split('/')
-        s = []
-        for i in data:
-            s.append(i.split(':')[0])
-        await message.answer('Выберите сервис:', reply_markup=keyboards.services_delete_keyboard(s))
+        user = await db.get_value('id', message.from_user.id)
+        if user[6]:
+            await message.answer('Введите пароль:')
+            await state.set_state(DeleteService.password)
+        else:
+            data = user[4].split('/')
+            s = []
+            for i in data:
+                s.append(i.split(':')[0])
+            await message.answer('Выберите сервис:', reply_markup=keyboards.services_delete_keyboard(s))
+
     else:
         await message.answer(MESSAGES['user_not_in_base'], reply_markup=keyboards.start_keyboard())
 
 
 @router.message(F.text == '🔧Изменить пароль🔧')  # Обрабатывает кнопку 🔧Изменить пароль🔧
-async def del_service(message: Message):
+async def del_service(message: Message, state: FSMContext):
+    user = await db.get_value('id', message.from_user.id)
     if await db.user_in_base(message.from_user.id):
-        data = await db.get_value('id', message.from_user.id)
-        data = data[4].split('/')
-        s = []
-        for i in data:
-            s.append(i.split(':')[0])
-        await message.answer('Выберите сервис:', reply_markup=keyboards.services_edit_keyboard(s))
+        if user[6]:
+            await message.answer('Введите пароль:')
+            await state.set_state(EditPassword.password)
+        else:
+            await state.set_state(EditPassword.password)
     else:
         await message.answer(MESSAGES['user_not_in_base'], reply_markup=keyboards.start_keyboard())
 
 
 @router.message(F.text == '📥Получить пароль📥')  # Обрабатывает кнопку 📥Получить пароль📥
-async def del_service(message: Message):
+async def del_service(message: Message, state: FSMContext):
+    user = await db.get_value('id', message.from_user.id)
     if await db.user_in_base(message.from_user.id):
-        data = await db.get_value('id', message.from_user.id)
-        data = data[4].split('/')
-        s = []
-        for i in data:
-            s.append(i.split(':')[0])
-        await message.answer('Выберите сервис:', reply_markup=keyboards.services_keyboard(s))
+        if user[6]:
+            await message.answer('Введите пароль:')
+            await state.set_state(GetPassword.password)
+        else:
+            data = await db.get_value('id', message.from_user.id)
+            data = data[4].split('/')
+            s = []
+            for i in data:
+                s.append(i.split(':')[0])
+            await message.answer('Выберите сервис:', reply_markup=keyboards.services_keyboard(s))
+            await state.clear()
     else:
         await message.answer(MESSAGES['user_not_in_base'], reply_markup=keyboards.start_keyboard())
+
+
+@router.message(F.sticker)  # Обрабатывает неизвесный текст
+async def other_messages(message: Message):
+    await message.bot.send_sticker(message.chat.id,
+                                   'CAACAgIAAxkBAAIIpmXGGGRTM1fZ8UlQdkU7YYaVKhYtAALwFQACyjPZS806D2QrLIi2NAQ')
 
 
 @router.message()  # Обрабатывает неизвесный текст

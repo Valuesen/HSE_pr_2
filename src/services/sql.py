@@ -30,14 +30,42 @@ class DataBase:
             except sqlite3.Error as e:
                 print(e)
 
+    async def update_alerts(self, user_id, value):
+        with self.connect:
+            try:
+                sql_update_query = f"""Update Users set alerts = '{int(value)}' where id = {user_id}"""
+                return self.cursor.execute(sql_update_query)
+            except sqlite3.Error as e:
+                print(e)
+
+    async def update_password(self, user_id, value):
+        with self.connect:
+            try:
+                sql_update_query = f"""Update Users set password = '{value}' where id = {user_id}"""
+                return self.cursor.execute(sql_update_query)
+            except sqlite3.Error as e:
+                print(e)
+
+    async def update_pwd_req(self, user_id, value):
+        with self.connect:
+            try:
+                sql_update_query = f"""Update Users set pwd_req = '{value}' where id = {user_id}"""
+                return self.cursor.execute(sql_update_query)
+            except sqlite3.Error as e:
+                print(e)
+
     async def get_value(self, selection, value):
         try:
             with self.connect:
                 data = self.cursor.execute(f"SELECT * FROM Users WHERE {selection} = {value}")
+                s = []
                 for row in data:
-                    i = row
+                    s.append(row)
             try:
-                return i
+                if len(s) == 1:
+                    return s[0]
+                else:
+                    return s
             except Exception as e:
                 print(e)
                 return 0
@@ -59,7 +87,7 @@ class DataBase:
     async def add_user(self, user):
         with self.connect:
             return self.cursor.execute(
-                f'INSERT INTO Users (id, name, password, period, passwords) values{tuple(user)}')
+                f'INSERT INTO Users (id, name, password, period, passwords, alerts, pwd_req) values{tuple(user)}')
 
     async def delete(self, selection, value):
         with self.connect:

@@ -44,11 +44,16 @@ def account_keyboard():
     return builder.as_markup()
 
 
-def edit_account_keyboard():
+def edit_account_keyboard(user):
+    alerts_text = 'Включить уведомления' if user[5] == 0 else 'Выключить уведомления'
+    pwd_text = 'Включить запрос пароля' if user[6] == 0 else 'Выключить запрос пароля'
+
     buttons = [
         [types.InlineKeyboardButton(text="Изменитиь имя", callback_data='edit_name')],
-        [types.InlineKeyboardButton(text="Изменить период смены пароля", callback_data='edit_period')],
         [types.InlineKeyboardButton(text="Изменить пароль", callback_data='edit_passwd')],
+        [types.InlineKeyboardButton(text="Изменить период смены пароля", callback_data='edit_period')],
+        [types.InlineKeyboardButton(text=alerts_text, callback_data='edit_alerts')],
+        [types.InlineKeyboardButton(text=pwd_text, callback_data='edit_passwd_req')],
         [types.InlineKeyboardButton(text="Удалить аккаунт", callback_data='del_account')],
         [types.InlineKeyboardButton(text="❌Закрыть❌", callback_data='close_profile_menu')]
     ]
@@ -70,7 +75,6 @@ def verification_keyboard(func):
             text="❌Отменить❌",
             callback_data="cancel")
         )
-        builder.adjust(2)
     elif func == 'edit':
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -82,19 +86,18 @@ def verification_keyboard(func):
             text="❌Оставить❌",
             callback_data="cancel")
         )
-        builder.adjust(2)
     elif func == 'delete':
         builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="✅Оставить✅",
+            callback_data="cancel")
+        )
+
         builder.add(types.InlineKeyboardButton(
             text="❌Удалить❌",
             callback_data="delete_service")
         )
 
-        builder.add(types.InlineKeyboardButton(
-            text="✅Оставить✅",
-            callback_data="cancel")
-        )
-        builder.adjust(2)
     elif func == 'edit_name':
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -106,7 +109,6 @@ def verification_keyboard(func):
             text="❌Оставить❌",
             callback_data="cancel")
         )
-        builder.adjust(2)
     elif func == 'del_account':
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -118,7 +120,18 @@ def verification_keyboard(func):
             text="❌Удалить❌",
             callback_data="del_account_final")
         )
-        builder.adjust(2)
+    elif func == 'edit_ac_pwd':
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="✅Сменить✅",
+            callback_data="edit_ac_true")
+        )
+
+        builder.add(types.InlineKeyboardButton(
+            text="❌Оставить❌",
+            callback_data="cancel")
+        )
+    builder.adjust(2)
     return builder.as_markup()
 
 
