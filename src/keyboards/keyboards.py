@@ -4,8 +4,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 def main_menu_keyboard():  # Клавиатура главного меню
     menu_keyboard = [
-        [types.KeyboardButton(text="🔧Управление сервисами🔧")],
-        [types.KeyboardButton(text="👤Аккаунт👤")]
+        [types.KeyboardButton(text="🔑Управление сервисами🔑")],
+        [types.KeyboardButton(text="👤АККАУНТ")]
     ]
 
     menu_keyboard = types.ReplyKeyboardMarkup(keyboard=menu_keyboard,
@@ -17,9 +17,9 @@ def main_menu_keyboard():  # Клавиатура главного меню
 def pwd_menage_keyboard():  # Клавиатура меню управления сервисами
     buttons = [
         [types.KeyboardButton(text="📋Список моих сервисов📋")],
-        [types.KeyboardButton(text="📥Получить пароль сервиса📥")],
-        [types.KeyboardButton(text="✅Добавить сервис✅"), types.KeyboardButton(text="❌Удалить сервис❌")],
+        [types.KeyboardButton(text="🔑Получить пароль сервиса🔑")],
         [types.KeyboardButton(text="🔧Изменить пароль сервиса🔧")],
+        [types.KeyboardButton(text="✅Добавить сервис✅"), types.KeyboardButton(text="❌Удалить сервис❌")],
         [types.KeyboardButton(text="⬅Назад")]
     ]
 
@@ -32,7 +32,7 @@ def pwd_menage_keyboard():  # Клавиатура меню управления
 def account_keyboard():
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
-        text="🔧Настроить🔧",
+        text="⚙️ Настроить ⚙️",
         callback_data="edit_profile")
     )
 
@@ -46,14 +46,14 @@ def account_keyboard():
 
 def edit_account_keyboard(user):
     alerts_text = 'Включить уведомления' if user[5] == 0 else 'Выключить уведомления'
-    pwd_text = 'Включить запрос пароля' if user[6] == 0 else 'Выключить запрос пароля'
+    pwd_text = 'Включить запрос пароля ЛК' if user[6] == 0 else 'Выключить запрос пароля ЛК'
 
     buttons = [
-        [types.InlineKeyboardButton(text="Изменитиь имя", callback_data='edit_name')],
-        [types.InlineKeyboardButton(text="Изменить пароль", callback_data='edit_passwd')],
-        [types.InlineKeyboardButton(text="Изменить период смены пароля", callback_data='edit_period')],
-        [types.InlineKeyboardButton(text=alerts_text, callback_data='edit_alerts')],
+        [types.InlineKeyboardButton(text="Изменить имя", callback_data='edit_name')],
+        [types.InlineKeyboardButton(text="Изменить пароль ЛК", callback_data='edit_passwd')],
         [types.InlineKeyboardButton(text=pwd_text, callback_data='edit_passwd_req')],
+        [types.InlineKeyboardButton(text="Периодичность смены пароля", callback_data='edit_period')],
+        [types.InlineKeyboardButton(text=alerts_text, callback_data='edit_alerts')],
         [types.InlineKeyboardButton(text="Удалить аккаунт", callback_data='del_account')],
         [types.InlineKeyboardButton(text="❌Закрыть❌", callback_data='close_profile_menu')]
     ]
@@ -83,7 +83,7 @@ def verification_keyboard(func):
         )
 
         builder.add(types.InlineKeyboardButton(
-            text="❌Оставить❌",
+            text="❌Отменить❌",
             callback_data="cancel")
         )
     elif func == 'delete':
@@ -106,7 +106,7 @@ def verification_keyboard(func):
         )
 
         builder.add(types.InlineKeyboardButton(
-            text="❌Оставить❌",
+            text="❌Отменить❌",
             callback_data="cancel")
         )
     elif func == 'del_account':

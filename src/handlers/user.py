@@ -16,7 +16,7 @@ db = DataBase(database_path)
 router = Router()
 
 
-@router.message(F.text == '🔧Управление сервисами🔧')  # Обрабатывает кнопку 🔧Управление сервисами🔧
+@router.message(F.text == '🔑Управление сервисами🔑')  # Обрабатывает кнопку 🔧Управление сервисами🔧
 async def pwd_manage(message: Message):
     await message.answer(MESSAGES["pwd_manage"], reply_markup=keyboards.pwd_menage_keyboard())
 
@@ -34,17 +34,17 @@ async def pwd_manage(message: Message):
         time = data_in_serv[2].split('-')
         k = str(date(int(time[0]), int(time[1]), int(time[2])) - date.today())
         if k == '0:00:00':
-            text.append(f"{data_in_serv[0]}: {data[3]} дней до смены")
+            text.append(f"{data_in_serv[0]}: {data[3]} дн. до смены пароля")
         else:
             k = int(k.split(' ')[0])
             if data[3]+k > 0:
-                text.append(f"{data_in_serv[0]}: {data[3]+k} дней до смены")
+                text.append(f"{data_in_serv[0]}: {data[3]+k} дн. до смены пароля")
             else:
                 text.append(f"{data_in_serv[0]}: пора менять")
-    await message.answer("Информация по сервисам:\n" + '\n'.join(text), reply_markup=keyboards.pwd_menage_keyboard())
+    await message.answer('\n'.join(text), reply_markup=keyboards.pwd_menage_keyboard())
 
 
-@router.message(F.text == '👤Аккаунт👤')  # Обрабатывает кнопку 👤Аккаунт👤
+@router.message(F.text == '👤АККАУНТ')  # Обрабатывает кнопку 👤Аккаунт👤
 async def account(message: Message):
     if await db.user_in_base(message.from_user.id):
         user = await db.get_value('id', message.from_user.id)
@@ -64,7 +64,9 @@ async def back(message: Message):
 
 @router.message(F.text == '✅Добавить сервис✅')  # Обрабатывает кнопку ✅Добавить сер.✅
 async def add_service(message: Message, state: FSMContext):
-    await message.answer('Напишите название сервиса\n(Не используйте : и /):', reply_markup=None)
+    await message.answer('Напишите название сервиса,\nпароль которого необходимо сохранить.\n'
+                         'Например: mail.ru\n'
+                         'Не используйте символы / и :', reply_markup=None)
     await state.set_state(AddServiceStates.service_name)
 
 
@@ -73,7 +75,7 @@ async def del_service(message: Message, state: FSMContext):
     if await db.user_in_base(message.from_user.id):
         user = await db.get_value('id', message.from_user.id)
         if user[6]:
-            await message.answer('Введите пароль:')
+            await message.answer('Введите пароль ЛК:')
             await state.set_state(DeleteService.password)
         else:
             data = user[4].split('/')
@@ -91,20 +93,25 @@ async def del_service(message: Message, state: FSMContext):
     user = await db.get_value('id', message.from_user.id)
     if await db.user_in_base(message.from_user.id):
         if user[6]:
-            await message.answer('Введите пароль:')
+            await message.answer('Введите пароль ЛК:')
             await state.set_state(EditPassword.password)
         else:
-            await state.set_state(EditPassword.password)
+            data = user[4].split('/')
+            s = []
+            for i in data:
+                s.append(i.split(':')[0])
+            await message.answer('Выберите сервис:', reply_markup=keyboards.services_edit_keyboard(s))
+            await state.clear()
     else:
         await message.answer(MESSAGES['user_not_in_base'], reply_markup=keyboards.start_keyboard())
 
 
-@router.message(F.text == '📥Получить пароль сервиса📥')  # Обрабатывает кнопку 📥Получить пароль📥
+@router.message(F.text == '🔑Получить пароль сервиса🔑')  # Обрабатывает кнопку 📥Получить пароль📥
 async def del_service(message: Message, state: FSMContext):
     user = await db.get_value('id', message.from_user.id)
     if await db.user_in_base(message.from_user.id):
         if user[6]:
-            await message.answer('Введите пароль:')
+            await message.answer('Введите пароль ЛК:')
             await state.set_state(GetPassword.password)
         else:
             data = await db.get_value('id', message.from_user.id)
@@ -121,7 +128,7 @@ async def del_service(message: Message, state: FSMContext):
 @router.message(F.sticker)  # Обрабатывает неизвесный текст
 async def other_messages(message: Message):
     await message.bot.send_sticker(message.chat.id,
-                                   'CAACAgIAAxkBAAIIpmXGGGRTM1fZ8UlQdkU7YYaVKhYtAALwFQACyjPZS806D2QrLIi2NAQ')
+                                   message.sticker.file_id)
 
 
 @router.message()  # Обрабатывает неизвесный текст

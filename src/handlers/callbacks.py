@@ -55,7 +55,9 @@ async def edit_alerts(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'cancel')  # Роутер на кноаку Отемна(Во всех функциях)
 async def cancel(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text("❌Отмена❌")
+    m = await callback.message.edit_text("❌Отмена❌")
+    await asyncio.sleep(3)
+    await m.delete()
     await state.clear()
 
 
@@ -130,8 +132,8 @@ async def edit_service(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'edit_period')  # Роутер на изменение пароля
 async def edit_name(callback: CallbackQuery, state: FSMContext):
     last_period = await db.get_value('id', callback.from_user.id)
-    await callback.message.edit_text(f'Прошлый период {last_period[3]} д.\n'
-                                     f'Напишите новый период(в днях):')
+    await callback.message.edit_text(f'Текущая переодичность: {last_period[3]} д.\n'
+                                     f'Задайте новую(в днях):')
     await state.set_state(EditPeriod.new_period)
 
 
@@ -143,6 +145,7 @@ async def edit_name(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == 'edit_name_final')  # Роутер на изменение пароля
 async def edit_name_final(callback: CallbackQuery, state: FSMContext):
+    await callback.message.delete()
     data = await state.get_data()
     await db.update_name(callback.from_user.id, data['user_name'])
     user = await db.get_value('id', callback.from_user.id)

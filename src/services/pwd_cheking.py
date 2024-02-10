@@ -16,10 +16,8 @@ async def pwd_check(password):
             n += 1
             break
     if n == 4:
-        return 'отличый🟡'
+        return 'отличый🟢'
     elif n == 3:
-        return 'хороший🟢'
-    elif n == 2:
-        return 'ненадежный🟠'
+        return 'надежный🟡'
     else:
-        return 'крайне ненадежный🔴'
+        return 'ненадежный🔴'

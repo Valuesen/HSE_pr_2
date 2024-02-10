@@ -25,7 +25,8 @@ database = DataBase(database_path)
 async def start_pass(message: Message, state: FSMContext):
     if message.text:
         await state.update_data(user_name=message.text)
-        await message.answer(MESSAGES["pwd_message"])
+        await message.answer(f'Прияно познакомиться, {message.text}!\n'
+                             f'Создайте пароль для вашего личного кабинета:')
         await state.set_state(user_states.UserStates.password)
     else:
         await message.answer('Неверный формат ввода, пожалуйста, введите имя текстом')
@@ -38,6 +39,10 @@ async def start_pass(message: Message, state: FSMContext):
         new_period = int(message.text)
         await database.update_peroid(message.from_user.id, new_period)
         user = await database.get_value('id', message.from_user.id)
+        m = await message.answer('Готово 🚀')
+        await asyncio.sleep(2)
+        await m.delete()
+        await asyncio.sleep(0.2)
         await message.answer(
             f'Имя: {user[1]}\nСервисов добавлено: {len(user[4].split("/"))}\nПериод: {user[3]} д.\n'
             f'Уведомления: {"Включены🟢" if user[5] == 1 else "Выключены🔴"}\n'
@@ -69,7 +74,9 @@ async def start_sec(message: Message, state: FSMContext):
 async def add_serv_name(message: Message, state: FSMContext):
     if message.text:
         await state.update_data(service_name=message.text.replace(':', '').replace('/', ''))
-        await message.answer('Напишите пароль\n(Не используйте : и /):')
+        await message.answer('Введите пароль к данному сервису\n'
+                             '(для сохранения конфиденциальности логин не указывается)\n'
+                             'Не используйте / и :')
         await state.set_state(user_states.AddServiceStates.service_password)
     else:
         await message.answer('Ошибка ввода\nПришлите текстовое название сервиса:')
@@ -165,29 +172,22 @@ async def del_service(message: Message, state: FSMContext):
 @router.message(user_states.EditPassword.password)
 async def edit_pwd(message: Message, state: FSMContext):
     user = await database.get_value('id', message.from_user.id)
-    if user[6]:
-        if message.text:
-            if message.text == user[2]:
-                data = user[4].split('/')
-                s = []
-                for i in data:
-                    s.append(i.split(':')[0])
-                await message.answer('Выберите сервис:', reply_markup=keyboards.services_edit_keyboard(s))
-            else:
-                await message.answer('Ошибка входа', reply_markup=keyboards.pwd_menage_keyboard())
-            await state.clear()
-
+    if message.text:
+        if message.text == user[2]:
+            data = user[4].split('/')
+            s = []
+            for i in data:
+                s.append(i.split(':')[0])
+            await message.answer('Выберите сервис:', reply_markup=keyboards.services_edit_keyboard(s))
         else:
-            await message.answer('Ошибка ввода\nВведите текстовый пароль:',
-                                 reply_markup=keyboards.cancel_keyboard())
-            await state.set_state(user_states.EditPassword.password)
-    else:
-        data = user[4].split('/')
-        s = []
-        for i in data:
-            s.append(i.split(':')[0])
-        await message.answer('Выберите сервис:', reply_markup=keyboards.services_edit_keyboard(s))
+            await message.answer('Ошибка входа', reply_markup=keyboards.pwd_menage_keyboard())
         await state.clear()
+
+    else:
+        await message.answer('Ошибка ввода\nВведите текстовый пароль:',
+                             reply_markup=keyboards.cancel_keyboard())
+        await state.set_state(user_states.EditPassword.password)
+
 
 
 @router.message(user_states.DeleteAccount.password)
