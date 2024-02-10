@@ -21,7 +21,7 @@ async def pwd_manage(message: Message):
     await message.answer(MESSAGES["pwd_manage"], reply_markup=keyboards.pwd_menage_keyboard())
 
 
-@router.message(F.text == '📋Список сервисов📋')  # Обрабатывает кнопку 🔧Управление сервисами🔧
+@router.message(F.text == '📋Список моих сервисов📋')  # Обрабатывает кнопку 🔧Управление сервисами🔧
 async def pwd_manage(message: Message):
     data = await db.get_value('id', message.from_user.id)
     if data[4] == '':
@@ -62,13 +62,13 @@ async def back(message: Message):
     await message.answer('Главное меню:', reply_markup=keyboards.main_menu_keyboard())
 
 
-@router.message(F.text == '✅Добавить сер.✅')  # Обрабатывает кнопку ✅Добавить сер.✅
+@router.message(F.text == '✅Добавить сервис✅')  # Обрабатывает кнопку ✅Добавить сер.✅
 async def add_service(message: Message, state: FSMContext):
     await message.answer('Напишите название сервиса\n(Не используйте : и /):', reply_markup=None)
     await state.set_state(AddServiceStates.service_name)
 
 
-@router.message(F.text == '❌Удалить сер.❌')  # Обрабатывает кнопку ❌Удалить сер.❌
+@router.message(F.text == '❌Удалить сервис❌')  # Обрабатывает кнопку ❌Удалить сер.❌
 async def del_service(message: Message, state: FSMContext):
     if await db.user_in_base(message.from_user.id):
         user = await db.get_value('id', message.from_user.id)
@@ -86,7 +86,7 @@ async def del_service(message: Message, state: FSMContext):
         await message.answer(MESSAGES['user_not_in_base'], reply_markup=keyboards.start_keyboard())
 
 
-@router.message(F.text == '🔧Изменить пароль🔧')  # Обрабатывает кнопку 🔧Изменить пароль🔧
+@router.message(F.text == '🔧Изменить пароль сервиса🔧')  # Обрабатывает кнопку 🔧Изменить пароль🔧
 async def del_service(message: Message, state: FSMContext):
     user = await db.get_value('id', message.from_user.id)
     if await db.user_in_base(message.from_user.id):
@@ -99,7 +99,7 @@ async def del_service(message: Message, state: FSMContext):
         await message.answer(MESSAGES['user_not_in_base'], reply_markup=keyboards.start_keyboard())
 
 
-@router.message(F.text == '📥Получить пароль📥')  # Обрабатывает кнопку 📥Получить пароль📥
+@router.message(F.text == '📥Получить пароль сервиса📥')  # Обрабатывает кнопку 📥Получить пароль📥
 async def del_service(message: Message, state: FSMContext):
     user = await db.get_value('id', message.from_user.id)
     if await db.user_in_base(message.from_user.id):

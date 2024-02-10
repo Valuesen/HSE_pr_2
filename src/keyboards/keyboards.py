@@ -16,10 +16,10 @@ def main_menu_keyboard():  # Клавиатура главного меню
 
 def pwd_menage_keyboard():  # Клавиатура меню управления сервисами
     buttons = [
-        [types.KeyboardButton(text="📋Список сервисов📋")],
-        [types.KeyboardButton(text="📥Получить пароль📥")],
-        [types.KeyboardButton(text="✅Добавить сер.✅"), types.KeyboardButton(text="❌Удалить сер.❌")],
-        [types.KeyboardButton(text="🔧Изменить пароль🔧")],
+        [types.KeyboardButton(text="📋Список моих сервисов📋")],
+        [types.KeyboardButton(text="📥Получить пароль сервиса📥")],
+        [types.KeyboardButton(text="✅Добавить сервис✅"), types.KeyboardButton(text="❌Удалить сервис❌")],
+        [types.KeyboardButton(text="🔧Изменить пароль сервиса🔧")],
         [types.KeyboardButton(text="⬅Назад")]
     ]
 
@@ -210,3 +210,14 @@ def start_keyboard():
                                          resize_keyboard=True,
                                          input_field_placeholder="Необходима регистрация")
     return keyboard
+
+
+def cancel_keyboard():
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="↩️Отменить↩️",
+        callback_data="cancel")
+    )
+    builder.adjust(1)
+
+    return builder.as_markup()

@@ -101,7 +101,6 @@ async def edit_alerts(callback: CallbackQuery, state: FSMContext):
 async def del_service(callback: CallbackQuery):
     if await db.user_in_base(callback.from_user.id):
         data = callback.message.text.split('\n')[2:]
-        print(data)
         s = []
         for i in data:
             s.append(i)
@@ -202,8 +201,8 @@ async def other(callback: CallbackQuery, state: FSMContext):
                 password = i.split(':')[1]
                 break
         for sec in range(15, 0, -1):
-            await callback.message.edit_text(f'Пароль: ||{password}||\nИсчзнет через {sec}',
-                                             parse_mode=ParseMode.MARKDOWN_V2,
+            await callback.message.edit_text(f'Пароль: <tg-spoiler>{password}</tg-spoiler>\nИсчзнет через {sec}',
+                                             parse_mode=ParseMode.HTML,
                                              reply_markup=None)
             await asyncio.sleep(1)
         await callback.message.delete()
